@@ -4,6 +4,7 @@
 #include "pch.h"
 #include <iostream>
 #include <fstream>
+#include<string>
 
 
 using namespace std;
@@ -25,14 +26,45 @@ struct C_stat
 	double efficiency;
 };
 
-int check_menu(int a)
+int input_menu()
 {
-	if ((a < 0) or (a > 5))
+	while (true)
 	{
-		cout << "Введите корректное число..." << endl;
-		return 1;
+		/*int a;
+		cin >> a;
+		if ((a < 0) or (a > 5) or (!cin))
+		{
+			cout << "Введите корректное число..." << endl;
+		}
+		else
+		{
+			return a;
+		}
+		cin.clear();
+		fflush(stdin);*/
+		string str;
+		cin >> str;
+		bool err = true;
+		for (int i = 0; i < 3; i++)
+		{
+			if ((str.length()!=1) or (str[0]-48>5))
+			{
+				err = false;
+				break;
+			}
+		}
+		//cout << str + " " << (int)str[0]<<" "<<str[0] + 5 << endl;
+
+		if (!err)
+		{
+			cout << "Введите корректное число..." << endl;
+			!err;
+			cin.clear();
+			continue;
+		}
+		else return str[0]-48;
 	}
-	else return 0;
+	
 }
 
 int main()
@@ -42,7 +74,7 @@ int main()
 
 	Pipe pipe;
 	pipe.in_work = 0;
-	int menu;
+	int menu = 8;
 	int len, dim;
 	bool sost;
 	/*pipe.length = 0 ;
@@ -55,14 +87,10 @@ int main()
 	double eff = 0;
 	int all = 0, work = 0;
 	cout << " 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 0. Выход\n";
-	while (true)
+	while (menu)
 	{
 		
-		cin >> menu;
-		if (check_menu(menu) != 0)
-		{
-			continue;
-		}
+		menu = input_menu();
 		if (menu == 0)
 		{
 			break;
@@ -100,6 +128,7 @@ int main()
 		}
 		if (menu == 3)
 		{
+			system("cls");
 			cout << pipe.length << " " << pipe.diameter << " " << pipe.in_work << endl;
 			cout << " " << comp.name << " " << comp.all_count << " " << comp.work_count << " " << comp.efficiency << endl;
 		}
