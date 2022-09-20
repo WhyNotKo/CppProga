@@ -25,7 +25,16 @@ struct C_stat
 	int work_count;
 	double efficiency;
 };
+void cout_menu()
+{
+	system("cls");
+	cout << " 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 0. Выход\n";
+}
 
+//int isitint(string a)
+//{
+//
+//}
 int input_menu()
 {
 	while (true)
@@ -62,7 +71,8 @@ int input_menu()
 			cin.clear();
 			continue;
 		}
-		else return str[0]-48;
+		/*else return str[0]-48;*/
+		else return stoi(str);
 	}
 	
 }
@@ -86,7 +96,7 @@ int main()
 	string name = "";
 	double eff = 0;
 	int all = 0, work = 0;
-	cout << " 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 0. Выход\n";
+	cout_menu();
 	while (menu)
 	{
 		
@@ -94,43 +104,38 @@ int main()
 		if (menu == 0)
 		{
 			break;
-			system("cls");
-			cout << " 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 0. Выход\n";
+			cout_menu();
 		}
 		if (menu == 1)
 		{
 			system("cls");
-			cout << "Введите длину, диаметр и состояние трубы(1/0)" << endl;
+			cout << "Введите длину, диаметр и состояние трубы(1/0) через пробел" << endl;
 			
-			cin >> len >> dim >> sost;
-			pipe.length = len;
-			pipe.diameter = dim;
-			pipe.in_work = sost;
-
-			system("cls");
-			cout << " 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 0. Выход\n";
+			cin >> pipe.length >> pipe.diameter >> pipe.in_work;
+			cout_menu();
 
 			//cout << pipe.length << " " << pipe.diameter << " " << pipe.in_work << endl;
 		}
 		if (menu == 2)
 		{
 			system("cls");
-			cout << "Введите название, кол-во цехов, кол-во работающих цехов и эффективность" << endl;
+			cout << "Введите название, кол-во цехов, работающих цехов и эффективность через пробел" << endl;
 
-			cin >> name >> all >> work >> eff;
-			comp.name = name;
+			cin >> comp.name >> comp.all_count >> comp.work_count >> comp.efficiency;
+			/*comp.name = name;
 			comp.all_count = all;
 			comp.work_count = work;
-			comp.efficiency = eff;
+			comp.efficiency = eff;*/
 
-			system("cls");
-			cout << " 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 0. Выход\n";
+			cout_menu();
 		}
 		if (menu == 3)
 		{
 			system("cls");
-			cout << pipe.length << " " << pipe.diameter << " " << pipe.in_work << endl;
-			cout << " " << comp.name << " " << comp.all_count << " " << comp.work_count << " " << comp.efficiency << endl;
+			cout << "Длина трубы: " << pipe.length << " км\nДиаметр трубы: " << pipe.diameter << " мм\nСостояние: " << pipe.in_work << endl;
+			cout << "\nНазвание КС: " << comp.name << " \nКоличество цехов: " << comp.all_count << " \nКоличество работающих цехов: " << comp.work_count << " \nЭффективность: " << comp.efficiency << endl;
+
+			cout << "\n 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 0. Выход\n";
 		}
 		/*if (menu == 4)
 		{
