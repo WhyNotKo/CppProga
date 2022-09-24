@@ -25,6 +25,7 @@ struct C_stat
 	int work_count;
 	double efficiency;
 };
+
 void cout_menu()
 {
 	system("cls");
@@ -57,11 +58,11 @@ int input_int()
 		string str;
 		cin >> str;
 		bool err = true;
-		for (auto c : str)
+		for (int i = 0; i < str.length();++i)
 		{
-			if ((c-48 >0) or (c-48 <10))
+			if (!isdigit(str[i]))
 			{
-				!err;
+				err = false;
 				break;
 			}
 		}
@@ -69,14 +70,15 @@ int input_int()
 		if (!err)
 		{
 			cout << "Введите корректное число..." << endl;
-			!err;
-			//cin.clear();
+			err = true;
+			cin.clear();
 			continue;
 		}
 		else return stoi(str);
 	}
 
 }
+
 int input_menu()
 {
 	string str;
@@ -107,15 +109,92 @@ int input_menu()
 	
 }
 
+void cout_obj(Pipe pipe, C_stat comp)
+{
+	system("cls");
+	cout << "Длина трубы: " << pipe.length << " км\nДиаметр трубы: " << pipe.diameter << " мм\nСостояние: " << pipe.in_work << endl;
+	cout << "\nНазвание КС: " << comp.name << " \nКоличество цехов: " << comp.all_count << " \nКоличество работающих цехов: " << comp.work_count << " \nЭффективность: " << comp.efficiency << endl;
+
+	cout << "\n 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 0. Выход\n";
+}
+
+void input_pipe(Pipe& pipe)
+{
+	system("cls");
+	cout << "Введите длину трубы" << endl;
+	pipe.length = input_int();
+
+	cout << "Введите диаметр трубы" << endl;
+	pipe.diameter = input_int();
+
+	cout << "Введите состояние трубы(y/n) (у если работает, n если в ремонте)" << endl;
+	pipe.in_work = input_bool();
+	cout_menu();
+}
+
+void input_cp(C_stat& comp)
+{
+	system("cls");
+	cout << "Введите название КС" << endl;
+
+	cin >> comp.name;
+
+	cout << "Введите количество всех цехов КС" << endl;
+	comp.all_count = input_int();
+
+	cout << "Введите количество работающих цехов КС" << endl;
+	while (true)
+	{
+		int check = input_int();
+		if (check > comp.all_count)
+		{
+			cout << "Введите меньше цехов, чем их всего..." << endl;
+			continue;
+		}
+		else
+		{
+			comp.work_count = check;
+			break;
+		}
+	}
+		cout << "Введите эффективность КС" << endl;
+		comp.efficiency = input_int();
+
+		cout_menu();
+}
+
+void save_data(Pipe pipe, C_stat comp)
+{
+	ofstream fout("basa.txt");
+	fout << pipe.length << " " << pipe.diameter << " " << pipe.in_work << endl;
+	fout << comp.name << " " << comp.all_count << " "  << comp.work_count << " "  << comp.efficiency << endl;
+	fout.close();
+	cout << "Данные сохранены." << endl;
+}
+
+void load_data(Pipe& pipe, C_stat& comp)
+{
+	ifstream fin("basa.txt");
+	if (!fin.eof())
+	{
+		fin >> pipe.length >> pipe.diameter >> pipe.in_work;
+		fin >> comp.name >> comp.all_count >> comp.work_count >> comp.efficiency;
+		fin.close();
+		cout << "Данные загружены." << endl;
+	}
+	else
+	{
+		cout << "Данных для загрузки нет..." << endl;
+	}
+}
+
 int main()
 {
 	setlocale(LC_ALL, "");
 
 	Pipe pipe;
-	int menu = 8;
-
-
 	C_stat comp;
+	int menu = 8;
 	cout_menu();
 	while (menu)
 	{
@@ -126,41 +205,11 @@ int main()
 			break;
 			cout_menu();
 		}
-		if (menu == 1)
-		{
-			system("cls");
-			cout << "Введите длину, диаметр и состояние трубы(y/n) через пробел" << endl;
-			pipe.length = input_int();
-			pipe.diameter = input_int();
-			pipe.in_work = input_bool();
-			cout_menu();
-
-			//cout << pipe.length << " " << pipe.diameter << " " << pipe.in_work << endl;
-		}
-		if (menu == 2)
-		{
-			system("cls");
-			cout << "Введите название, кол-во цехов, работающих цехов и эффективность через пробел" << endl;
-			
-			cin >> comp.name;
-			comp.all_count = input_int();
-			comp.work_count = input_int(); 
-			comp.efficiency = input_int();
-
-			cout_menu();
-		}
-		if (menu == 3)
-		{
-			system("cls");
-			cout << "Длина трубы: " << pipe.length << " км\nДиаметр трубы: " << pipe.diameter << " мм\nСостояние: " << pipe.in_work << endl;
-			cout << "\nНазвание КС: " << comp.name << " \nКоличество цехов: " << comp.all_count << " \nКоличество работающих цехов: " << comp.work_count << " \nЭффективность: " << comp.efficiency << endl;
-
-			cout << "\n 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 0. Выход\n";
-		}
-		/*if (menu == 4)
-		{
-			
-		}*/
+		if (menu == 1) input_pipe(pipe);
+		if (menu == 2) input_cp(comp);
+		if (menu == 3) cout_obj(pipe, comp);
+		if (menu == 4) save_data(pipe, comp);
+		if (menu == 5) load_data(pipe, comp);
 	}
 	return 0;
 }
