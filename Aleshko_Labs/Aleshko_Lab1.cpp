@@ -34,11 +34,11 @@ void cout_menu()
 
 string input_bool()
 {
+	string str;
+	bool err = true;
 	while (true)
 	{
-		string str;
 		cin >> str;
-		bool err = true;
 		if ((str[0] != 'y') && (str[0] != 'n')) err = false;
 
 		if (!err)
@@ -55,11 +55,11 @@ string input_bool()
 
 int input_int()
 {
+	string str;
+	bool err = true;
 	while (true)
 	{
-		string str;
 		cin >> str;
-		bool err = true;
 		for (int i = 0; i < str.length();++i)
 		{
 			if (!isdigit(str[i]))
@@ -69,12 +69,11 @@ int input_int()
 			}
 		}
 
-		if (!err)
+		if ((!err) or (stoi(str) == 0))
 		{
 			cout << "Введите корректное число..." << endl;
 			err = true;
 			cin.clear();
-			continue;
 		}
 		else return stoi(str);
 	}
@@ -106,7 +105,7 @@ int input_menu()
 			continue;
 		}
 		/*else return str[0]-48;*/
-		else return stoi(str);
+		else return stoi(str); //https://arduinoplus.ru/preobrazovanie-stroki-string-v-czeloe-chislo-int-v-c/
 	}
 	
 }
@@ -117,7 +116,8 @@ void cout_obj(Pipe pipe, C_stat comp)
 	cout << "Длина трубы: " << pipe.length << " км\nДиаметр трубы: " << pipe.diameter << " мм\nСостояние: " << pipe.in_work << endl;
 	cout << "\nНазвание КС: " << comp.name << " \nКоличество цехов: " << comp.all_count << " \nКоличество работающих цехов: " << comp.work_count << " \nЭффективность: " << comp.efficiency << endl;
 
-	cout << "\n 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 6. Изменить трубу\n 7. Изменить КС\n 0. Выход\n";
+	//cout << "\n 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 6. Изменить трубу\n 7. Изменить КС\n 0. Выход\n";
+	cout << "Нажмите 0, чтобы выйти в меню" << endl;
 }
 
 void input_pipe(Pipe& pipe)
@@ -137,6 +137,7 @@ void input_pipe(Pipe& pipe)
 void input_cp(C_stat& comp)
 {
 	system("cls");
+	int check;
 	cout << "Введите название КС" << endl;
 
 	cin >> comp.name;
@@ -147,11 +148,10 @@ void input_cp(C_stat& comp)
 	cout << "Введите количество работающих цехов КС" << endl;
 	while (true)
 	{
-		int check = input_int();
+		check = input_int();
 		if (check > comp.all_count)
 		{
 			cout << "Введите меньше цехов, чем их всего..." << endl;
-			continue;
 		}
 		else
 		{
@@ -159,10 +159,22 @@ void input_cp(C_stat& comp)
 			break;
 		}
 	}
-		cout << "Введите эффективность КС" << endl;
-		comp.efficiency = input_int();
 
-		cout_menu();
+	cout << "Введите эффективность КС (от 1 до 10)" << endl;
+	while (true)
+	{
+		check = input_int();
+		if (check > 10)
+		{
+			cout << "Введите значение от 1 до 10" << endl;
+		}
+		else 
+		{
+			comp.efficiency = check;
+			break;
+		}
+	}
+	cout_menu();
 }
 
 void save_data(Pipe pipe, C_stat comp)
@@ -176,8 +188,9 @@ void save_data(Pipe pipe, C_stat comp)
 
 void load_data(Pipe& pipe, C_stat& comp)
 {
-	ifstream fin("basa.txt");
-	if (!fin.eof())
+	ifstream fin;
+	fin.open("basa.txt");
+	if (fin.is_open())
 	{
 		fin >> pipe.length >> pipe.diameter >> pipe.in_work;
 		fin >> comp.name >> comp.all_count >> comp.work_count >> comp.efficiency;
@@ -188,6 +201,7 @@ void load_data(Pipe& pipe, C_stat& comp)
 	{
 		cout << "Данных для загрузки нет..." << endl;
 	}
+	fin.close();
 }
 
 void change_pipe(Pipe& pipe)
@@ -220,7 +234,6 @@ void change_cs(C_stat& comp)
 int main()
 {
 	setlocale(LC_ALL, "");
-
 	Pipe pipe;
 	pipe.length = 0;
 	C_stat comp;
@@ -229,14 +242,8 @@ int main()
 	cout_menu();
 	while (true)
 	{
-		
 		menu = input_menu();
-		if (menu == 0)
-		{
-			cout_menu();
-			continue;
-			
-		}
+		if (menu == 0) cout_menu();
 		if (menu == 1) if (!pipe.length) input_pipe(pipe); else cout << "Труба уже существует" << endl;
 		if (menu == 2) if (!comp.all_count) input_cp(comp); else cout << "КС уже существует" << endl;
 		if (menu == 3) cout_obj(pipe, comp);
