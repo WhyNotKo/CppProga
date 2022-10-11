@@ -1,4 +1,23 @@
-﻿// Aleshko_Lab1.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
+﻿// 
+// Изменить программу из предыдущей работы:
+
+//1)     добавить работу с несколькими объектами(несколько труб, несколько КС, с возможностью добавления, редактирования, удаления);
+
+//2)     обеспечить уникальную идентификацию объектов;
+
+//3)     поиск объектов по заданному фильтру :
+
+//a)     трубы: по названию, по признаку «в ремонте»;
+
+//b)    КС: по названию, по проценту незадействованных цехов;
+
+//4)     пакетное редактирование труб(т.е.редактирование или всех найденных, или по выбору пользователя)
+
+//UPD: название файлов для сохранения / загрузки задаются пользователем.
+
+//Пакетное редактирование - это отредактировать все элементы во множестве(например, все найденные) или подмножество(пользователь указывает, какие именно).
+
+//Для претендующих на высокий балл : разумное использование ресурсов, грамотная организация кода(убрать излишнее дублирование кода, каждая функция выполняет небольшое, логически законченное действие).Продемонстрировать умение и понимание работы с классами, ссылками, потоками ввода / вывода.
 //
 
 #include "pch.h"
@@ -29,7 +48,7 @@ struct C_stat
 void cout_menu()
 {
 	system("cls");
-	cout << "\n 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 6. Изменить трубу\n 7. Изменить КС\n 0. Выход в меню\n";
+	cout << "\n 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 6. Изменить трубу\n 7. Изменить КС\n 0. Выход\n";
 }
 
 string input_bool()
@@ -120,13 +139,11 @@ int input_menu()
 	//}
 	while (true)
 	{
-		int a;
-		cin >> a;
-		if (cin.fail() or a<0 or a>7)
+		int a = input_int();
+		if (a<0 or a>7)
 		{
 			cout << "Введите корректное число..." << endl;
-			cin.clear();
-			cin.ignore(10000, '\n');
+			a = input_int();
 		}
 		else return a;
 	}
@@ -136,11 +153,13 @@ int input_menu()
 void cout_obj(Pipe pipe, C_stat comp)
 {
 	system("cls");
-	cout << "Длина трубы: " << pipe.length << " км\nДиаметр трубы: " << pipe.diameter << " мм\nСостояние: " << pipe.in_work << endl;
-	cout << "\nНазвание КС: " << comp.name << " \nКоличество цехов: " << comp.all_count << " \nКоличество работающих цехов: " << comp.work_count << " \nЭффективность: " << comp.efficiency << endl;
-
-	//cout << "\n 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 6. Изменить трубу\n 7. Изменить КС\n 0. Выход\n";
-	cout << "Нажмите 0, чтобы выйти в меню" << endl;
+	if (pipe.length) cout << "Длина трубы: " << pipe.length << " км\nДиаметр трубы: " << pipe.diameter << " мм\nСостояние: " << pipe.in_work << "\n" << endl;
+	else cout << "Труб нет! \n" << endl;
+	
+	if (comp.all_count) cout << "\nНазвание КС: " << comp.name << " \nКоличество цехов: " << comp.all_count << " \nКоличество работающих цехов: " << comp.work_count << " \nЭффективность: " << comp.efficiency << endl;
+	else cout << "Компрессорки нет!" << endl;
+	cout << "\n 1. Добавить трубу\n 2. Добавить КС\n 3. Просмотр всех объектов\n 4. Сохранить\n 5. Загрузить\n 6. Изменить трубу\n 7. Изменить КС\n 0. Выход\n";
+	//cout << "Нажмите 0, чтобы выйти в меню" << endl;
 }
 
 void input_pipe(Pipe& pipe)
@@ -170,7 +189,7 @@ int minmax(int a)
 void input_cp(C_stat& comp)
 {
 	system("cls");
-	int check;
+	//int check;
 	cout << "Введите название КС" << endl;
 	
 	cin.ignore();
@@ -191,8 +210,8 @@ void input_cp(C_stat& comp)
 void save_data(Pipe pipe, C_stat comp)
 {
 	ofstream fout("basa.txt");
-	fout << pipe.length << " " << pipe.diameter << " " << pipe.in_work << endl;
-	fout << comp.name << "\n " << comp.all_count << " "  << comp.work_count << " "  << comp.efficiency << endl;
+	if (pipe.length) fout << 1 << '\n' << pipe.length << " " << pipe.diameter << " " << pipe.in_work << endl; else fout << 0 << endl;
+	if (comp.all_count) fout << 1 << '\n' << comp.name << "\n " << comp.all_count << " " << comp.work_count << " " << comp.efficiency << endl; else fout << 0 << endl;
 	fout.close();
 	cout << "Данные сохранены." << endl;
 }
@@ -203,9 +222,15 @@ void load_data(Pipe& pipe, C_stat& comp)
 	fin.open("basa.txt");
 	if (fin.is_open())
 	{
-		fin >> pipe.length >> pipe.diameter >> pipe.in_work;
-		getline(fin, comp.name);
-		fin >> comp.all_count >> comp.work_count >> comp.efficiency;
+		int pcount,cscount;
+		fin >> pcount;
+		if(pcount) fin >> pipe.length >> pipe.diameter >> pipe.in_work;
+		fin >> cscount;
+		if (cscount)
+		{
+			getline(fin, comp.name);
+			fin >> comp.all_count >> comp.work_count >> comp.efficiency;
+		}
 		fin.close();
 		cout << "Данные загружены." << endl;
 	}
@@ -254,6 +279,7 @@ void null(C_stat& comp, Pipe& pipe)
 	pipe.in_work = '0';
 
 }
+
 int main()
 {
 	setlocale(LC_ALL, "");
@@ -261,7 +287,7 @@ int main()
 	C_stat comp;
 	null(comp, pipe);
 	
-	int menu ;
+	int menu = 8;
 	cout_menu();
 	while (menu)
 	{
@@ -269,12 +295,12 @@ int main()
 		//if (menu == 0) cout_menu();
 		if (menu == 1) if (!pipe.length) input_pipe(pipe); else cout << "Труба уже существует" << endl;
 		if (menu == 2) if (!comp.all_count) input_cp(comp); else cout << "КС уже существует" << endl;
-		if (menu == 3) if (pipe.length && comp.all_count)cout_obj(pipe, comp); else cout << "Один из объектов не существует" << endl;
+		if (menu == 3) cout_obj(pipe, comp);
 		if (menu == 4) save_data(pipe, comp);
 		if (menu == 5) load_data(pipe, comp);
 		if (menu == 6) if (pipe.length) change_pipe(pipe); else cout << "Труба не существует" << endl;
 		if (menu == 7) if (comp.all_count) change_cs(comp); else cout << "КС не существует" << endl;
 	}
 	return 0;
-	
 }
+//template <typename T>
