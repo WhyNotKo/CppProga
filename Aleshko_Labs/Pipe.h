@@ -1,28 +1,50 @@
+//#pragma once
+//#include <iostream>
+//#include <string>
+//#include <fstream>
+//#include "pch.h"
+//
+////using namespace std;
+//
+//class Pipe
+//{
+//private:
+//	int id = 0;
+//	int length = 0;
+//	int diameter = 0;
+//	std::string in_work = "n";
+//
+//public:
+//	Pipe(int id);
+//
+//	void EditPipe();
+//
+//	friend std::istream& operator >> (std::istream& in, Pipe& p);
+//	friend std::ostream& operator << (std::ostream& out, const Pipe& p);
+//	//friend std::ifstream& operator >> (std::ifstream& in, Pipe& p);
+//	//friend std::ofstream& operator << (std::ofstream& out, const Pipe& p);
+//};
+//
 #pragma once
 #include <iostream>
-#include <string>
 #include <fstream>
+#include <string>
+#include"pch.h"
 
-using namespace std;
+
 class Pipe
 {
-	int id;
+private:
+	float len = 0;
+	float diameter = 0;
+	bool in_work = false;
+	//static int MaxID;
 
 public:
-	static int MaxPipeID;
-	int length;
-	int diameter;
-	string in_work;
-
-
-	int GetId() const;
-	void SetId();
-
-
+	int id = 0;
 	void EditPipe();
-	friend istream& operator >> (istream& in, Pipe& p);
-	friend ostream& operator << (ostream& out, const Pipe& p);
-	friend ifstream& operator >> (ifstream& in, Pipe& p);
-	friend ofstream& operator << (ofstream& out, const Pipe& p);
-};
 
+
+	friend std::istream& operator >> (std::istream& in, Pipe& Pp);
+	friend std::ostream& operator << (std::ostream& out, const Pipe& Pp);
+};
