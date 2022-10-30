@@ -32,10 +32,6 @@
 
 using namespace std;
 
-
-
-
-
 int MPID = 0;
 int MCID = 0;
 
@@ -49,9 +45,10 @@ int main()
 	unordered_map<int, C_stat> Stations;
 	
 	int menu = 8;
-	cout_menu();
 	while (menu)
 	{
+
+		cout_menu();
 		menu = input_menu();
 
 		if (menu == 1) 
@@ -59,10 +56,7 @@ int main()
 			cin >> pipe;
 			pipe.id = MPID;
 			Pipes.emplace(MPID, pipe);
-			cout << MPID<<endl;
 			MPID++;
-			//pipe.MaxIDincr();
-			cout << MPID<<endl;
 		}
 		if (menu == 2)
 		{
@@ -79,12 +73,24 @@ int main()
 			cout <<"Компрессорки" << endl;
 			for (auto& c : Stations) cout << c.second << endl;
 		}
-		/*if (menu == 4) save_data(pipe, comp);
-		if (menu == 5) load_data(pipe, comp);*/
+		string name;
+		if (menu == 4) 
+		{
+			cout << "Введите имя файла: ";
+			cin.ignore();
+			getline(cin, name);
+			save_data(name, Pipes, Stations);
+		}
+		if (menu == 5) 
+		{
+			cout << "Введите имя файла: ";
+			cin.ignore();
+			getline(cin, name);
+			load_data(name, MPID, MCID, Pipes, Stations);
+		}
 		if (menu == 6)
 		{
-			pipe.EditPipe();
-			Pipes[pipe.id] = pipe;
+			Pipemenu(Pipes);
 		}
 		if (menu == 7) 
 		{

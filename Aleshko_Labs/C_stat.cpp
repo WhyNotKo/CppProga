@@ -2,14 +2,15 @@
 #include "C_stat.h"
 #include"utils.h"
 
-using namespace std;
+//using namespace std;
 
-ostream& operator <<(std::ostream& out, C_stat& comp)
+std::ostream& operator <<(std::ostream& out,const C_stat& comp)
 {
-	cout << "\nНазвание КС: " << comp.name
+	std::cout << "\nID КС: " << comp.id;
+	std::cout << "\nНазвание КС: " << comp.name
 		<< " \nКоличество цехов: " << comp.all_count
 		<< " \nКоличество работающих цехов: " << comp.work_count
-		<< " \nЭффективность: " << comp.efficiency << endl;
+		<< " \nЭффективность: " << comp.efficiency << std::endl;
 	return out;
 }
 
@@ -40,4 +41,23 @@ void C_stat::change_cs()
 		work_count = GetCorrectNumber(0,all_count);
 	}
 	cout_menu();
+}
+
+std::ofstream& operator <<(std::ofstream& fout, const C_stat& comp)
+{
+	fout << comp.name << std::endl
+		<< comp.all_count << " "
+		<< comp.work_count << " "
+		<< comp.efficiency << std::endl;
+	return fout;
+}
+
+std::ifstream& operator >> (std::ifstream& fin, C_stat& comp)
+{
+	fin.ignore();
+	std::getline(fin,comp.name);
+	fin	>> comp.all_count
+		>> comp.work_count
+		>> comp.efficiency;
+	return fin;
 }
