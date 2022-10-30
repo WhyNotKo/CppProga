@@ -30,3 +30,11 @@ void ShowPipes(unordered_map<int, Pipe>& Pipes);
 void EditPipes(unordered_map<int, Pipe>& Pipes);
 
 void DeletePipes(unordered_map<int, Pipe>& Pipes);
+
+void CSmenu(unordered_map<int, C_stat>& Stations);
+
+void findStat(unordered_map<int, C_stat> Stations);
+
+void EditStat(unordered_map<int, C_stat>& Stations);
+
+void DeleteStat(unordered_map<int, C_stat>& Stations);

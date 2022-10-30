@@ -11,6 +11,7 @@ private:
 	int all_count = 0;
 	int work_count = 0;
 	double efficiency = 0;
+	double deal = 0;
 
 public:
 	int id = 0;
@@ -23,5 +24,9 @@ public:
 	friend std::ifstream& operator >> (std::ifstream& fin, C_stat& comp);
 
 	void change_cs();
+	
+	double eff_cs();
+
+	std::string getname();
 };
 

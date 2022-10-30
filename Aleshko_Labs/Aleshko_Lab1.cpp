@@ -44,12 +44,17 @@ int main()
 	unordered_map<int, Pipe> Pipes;
 	unordered_map<int, C_stat> Stations;
 	
-	int menu = 8;
-	while (menu)
+	int menu = 0;
+	while (true)
 	{
-
 		cout_menu();
-		menu = input_menu();
+		menu = input_menu(); 
+
+		if (!menu)
+		{
+			cout << "Внимание!\nСпасибо за внимание!\n";
+			break;
+		}
 
 		if (menu == 1) 
 		{
@@ -94,8 +99,7 @@ int main()
 		}
 		if (menu == 7) 
 		{
-			comp.change_cs();
-			Stations[comp.id] = comp;
+			CSmenu(Stations);
 		}
 	}
 	return 0;

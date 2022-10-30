@@ -100,7 +100,7 @@ void load_data(string name,int &MPID,int &MCID,unordered_map<int, Pipe>& Pipes, 
 		int psize = 0, csize = 0;
 
 		fin >> psize >> csize;
-		cout << psize << " " << csize << endl;
+		//cout << psize << " " << csize << endl;
 		int id = 0;
 		Pipe pipe;
 		C_stat comp;
@@ -119,6 +119,7 @@ void load_data(string name,int &MPID,int &MCID,unordered_map<int, Pipe>& Pipes, 
 			MCID = id+1;
 			fin >> comp;
 			comp.id = id;
+			comp.eff_cs();
 			Stations.emplace(id, comp);
 		}
 	}
@@ -130,7 +131,7 @@ void load_data(string name,int &MPID,int &MCID,unordered_map<int, Pipe>& Pipes, 
 
 void Pipemenu(unordered_map<int, Pipe>& Pipes)
 {
-	int choise = 8;
+	int choice = 8;
 	while (true)
 	{
 		cout << "Введите: " << endl
@@ -138,15 +139,15 @@ void Pipemenu(unordered_map<int, Pipe>& Pipes)
 			<< "2 - Изменение  труб" << endl
 			<< "3 - Удаление труб" << endl
 			<< "0 - Выйти в меню" << endl;
-		choise = GetCorrectNumber(0, 3);
-		if (!choise)
+		choice = GetCorrectNumber(0, 3);
+		if (!choice)
 		{
 			cout_menu();
 			break;
 		}
-		if (choise == 1) ShowPipes(Pipes);
-		if (choise == 2) EditPipes(Pipes);
-		if (choise == 3) DeletePipes(Pipes);
+		if (choice == 1) ShowPipes(Pipes);
+		if (choice == 2) EditPipes(Pipes);
+		if (choice == 3) DeletePipes(Pipes);
 	}
 }
 
@@ -191,4 +192,81 @@ void DeletePipes(unordered_map<int, Pipe>& Pipes)
 	cout << "Введите ID труб, которыe нужно удалить(-1 чтобы закончить)" << endl;
 	input_set(pp);
 	for (auto& c : pp) if (Pipes.find(c) != Pipes.end())Pipes.erase(c);
+}
+
+void CSmenu(unordered_map<int, C_stat>& Stations)
+{
+	int choice = 8;
+	while (true)
+	{
+		cout << "Введите: " << endl
+			<< "1 - Поиск КС" << endl
+			<< "2 - Изменение  КС" << endl
+			<< "3 - Удаление КС" << endl
+			<< "0 - Выйти в меню" << endl;
+		choice = GetCorrectNumber(0, 3);
+		if (!choice)
+		{
+			cout_menu();
+			break;
+		}
+		if (choice == 1) findStat(Stations);
+		if (choice == 2) EditStat(Stations);
+		if (choice == 3) DeleteStat(Stations);
+	}
+}
+void findStat(unordered_map<int, C_stat> Stations)
+{
+	int choice = 9;
+	while (true)
+	{
+		cout << "Введите: " << endl
+			<< "1 - Поиск КС по названию" << endl
+			<< "2 - Поиск КС по % задействованных цехов" << endl
+			<< "0 - Выйти в меню" << endl;
+		choice = GetCorrectNumber(0, 2);
+		if (!choice) break;
+		if (choice == 1)
+		{
+			cout << "Введите имя КС: ";
+			string pname;
+			cin.ignore();
+			getline(cin, pname);
+			C_stat cs;
+			for (const auto& p : Stations)
+			{
+				cs = p.second;
+				if (cs.getname().find(pname) != -1) cout << cs;
+			}
+			break;
+		}
+		if (choice == 2)
+		{
+			cout << "Введите min процент работающих КС: ";
+			int min = GetCorrectNumber(0, 100);
+			cout << "Введите max процент работающих КС: ";
+			int max = GetCorrectNumber(min, 100);
+			C_stat cs;
+			for (const auto& p : Stations)
+			{
+				cs = p.second;
+				if ((cs.eff_cs() * 100 >= min) && (cs.eff_cs() * 100 <=max)) cout << cs;
+			}
+			break;
+		}
+	}
+}
+void EditStat(unordered_map<int,C_stat>& Stations)
+{
+	cout << "Введите ID станции, которую хотите изменить: ";
+	int id = GetCorrectNumber(0, 1000000);
+	if (Stations.find(id) != Stations.end()) Stations[id].change_cs();
+	else cout << "КС не найдена!" << endl;
+}
+void DeleteStat(unordered_map<int, C_stat>& Stations)
+{
+	unordered_set<int> pp;
+	cout << "Введите ID КС, которыe нужно удалить(-1 чтобы закончить)" << endl;
+	input_set(pp);
+	for (auto& c : pp) if (Stations.find(c) != Stations.end()) Stations.erase(c);
 }

@@ -31,16 +31,8 @@ istream& operator >> (std::istream& in, C_stat& comp)
 
 	cout << "Введите эффективность КС (от 1 до 10)" << endl;
 	comp.efficiency = GetCorrectNumber(1, 10);
+
 	return in;
-}
-void C_stat::change_cs()
-{
-	cout << "Введите количество работающих цехов КС, сейчас " << work_count << " из " << all_count << endl;
-	while (true)
-	{
-		work_count = GetCorrectNumber(0,all_count);
-	}
-	cout_menu();
 }
 
 std::ofstream& operator <<(std::ofstream& fout, const C_stat& comp)
@@ -60,4 +52,19 @@ std::ifstream& operator >> (std::ifstream& fin, C_stat& comp)
 		>> comp.work_count
 		>> comp.efficiency;
 	return fin;
+}
+
+void C_stat::change_cs()
+{
+	cout << "Введите количество работающих цехов КС, сейчас " << work_count << " из " << all_count << endl;
+	work_count = GetCorrectNumber(0, all_count);
+}
+
+double C_stat::eff_cs()
+{
+	return (1.0 * work_count) / (all_count * 1.0);
+}
+string C_stat::getname()
+{
+	return name;
 }
