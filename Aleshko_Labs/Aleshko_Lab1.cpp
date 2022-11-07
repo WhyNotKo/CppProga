@@ -32,14 +32,13 @@
 
 using namespace std;
 
-int MPID = 0;
-int MCID = 0;
+int MPID = 1;
+int MCID = 1;
 
 int main()
 {
 	setlocale(LC_ALL, "");
-	Pipe pipe;
-	C_stat comp;
+
 
 	unordered_map<int, Pipe> Pipes;
 	unordered_map<int, C_stat> Stations;
@@ -52,19 +51,21 @@ int main()
 
 		if (!menu)
 		{
-			cout << "Внимание!\nСпасибо за внимание!\n";
+			cout << "СкОлЬкО вОлкО ОгуРцОм нЕ кОрмИ, оН не сТанЕт кОзОй в ТаЗике!\n";
 			break;
 		}
 
 		if (menu == 1) 
 		{
+			Pipe pipe;
 			cin >> pipe;
-			pipe.id = MPID;
+			//pipe.id = MPID;
 			Pipes.emplace(MPID, pipe);
 			MPID++;
 		}
 		if (menu == 2)
 		{
+			C_stat comp;
 			cin >> comp;
 			comp.id = MCID;
 			Stations.emplace(comp.id, comp);
@@ -72,11 +73,18 @@ int main()
 		}
 		if (menu == 3)
 		{
-
-			cout << "Трубы\n" << endl;
-			for ( auto &p:Pipes) cout << p.second << endl;
-			cout <<"Компрессорки" << endl;
-			for (auto& c : Stations) cout << c.second << endl;
+			if(Pipes.size())
+			{
+				cout << "Трубы\n" << endl;
+				for (auto& p : Pipes) cout << p.second << endl;
+			}
+			else cout << "Труб нет\n" << endl;
+			if(Stations.size())
+			{
+				cout << "Компрессорки" << endl;
+				for (auto& c : Stations) cout << c.second << endl;
+			}
+			else cout << "Компрессорок нет\n" ;
 		}
 		string name;
 		if (menu == 4) 

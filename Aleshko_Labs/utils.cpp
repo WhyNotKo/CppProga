@@ -84,6 +84,7 @@ void save_data(string name,const unordered_map<int, Pipe> Pipes, const unordered
 		fout << c.first << endl;
 		fout << c.second << endl;
 	}
+	fout.close();
 }
 
 
@@ -108,7 +109,7 @@ void load_data(string name,int &MPID,int &MCID,unordered_map<int, Pipe>& Pipes, 
 		{
 			fin >> id;
 			fin >> pipe;
-			pipe.id = id;
+			pipe.setID(id);
 			MPID = id + 1;
 			Pipes.emplace(id, pipe);
 		}
@@ -127,6 +128,7 @@ void load_data(string name,int &MPID,int &MCID,unordered_map<int, Pipe>& Pipes, 
 	{
 		cout << "Файл не открылся!" << endl;
 	}
+	fin.close();
 }
 
 void Pipemenu(unordered_map<int, Pipe>& Pipes)
@@ -135,10 +137,10 @@ void Pipemenu(unordered_map<int, Pipe>& Pipes)
 	while (true)
 	{
 		cout << "Введите: " << endl
-			<< "1 - Просмотр труб" << endl
+			<< "1 - Фильтр труб" << endl
 			<< "2 - Изменение  труб" << endl
 			<< "3 - Удаление труб" << endl
-			<< "0 - Выйти в меню" << endl;
+			<< "0 - Назад" << endl;
 		choice = GetCorrectNumber(0, 3);
 		if (!choice)
 		{
@@ -154,44 +156,112 @@ void Pipemenu(unordered_map<int, Pipe>& Pipes)
 void ShowPipes(unordered_map<int, Pipe>& Pipes)
 {
 	Pipe pipe;
-	cout << "Работающие трубы: " << endl<<endl;
-	for (const auto& p : Pipes)
+	if (!Pipes.size()) 
 	{
-		pipe = p.second;
-		if(pipe.ConditionPipe()) cout<<pipe;
+		cout << "Труб нет!" << endl << endl;
+		exit;
 	}
-
-	cout << endl << "НЕ Работающие трубы: " << endl << endl;
-	for (const auto& p : Pipes)
+	int choice;
+	while(true)
 	{
-		pipe = p.second;
-		if (!pipe.ConditionPipe()) cout << pipe;
+		cout << "Введите: " << endl
+			<< "1 - Работающие трубы "<< endl
+			<< "2 - Неработающие трубы" << endl
+			<< "0 - Назад" << endl;
+		choice = GetCorrectNumber(0, 2);
+		if(choice == 1)
+		{
+			cout << "Работающие трубы: " << endl << endl;
+
+			unordered_set<int> working;
+			for (const auto& p : Pipes)
+			{
+				pipe = p.second;
+				if (pipe.ConditionPipe())
+				{
+					working.insert(p.first);
+					cout << pipe;
+				}
+			}
+			int choice = 8;
+			while (true)
+			{
+				cout << "Введите: " << endl
+					<< "1 - Изменить состояние всех труб" << endl
+					<< "0 - Назад" << endl;
+				choice = GetCorrectNumber(0, 1);
+				if (!choice)
+					break;
+				if (choice == 1)
+				{
+					for (const auto& p : working)
+						Pipes[p].edit();
+					break;
+				}
+			}
+		}
+		if(choice == 2)
+		{
+			unordered_set<int> coworking;
+			cout << endl << "НЕ Работающие трубы: " << endl << endl;
+			for (const auto& p : Pipes)
+			{
+				pipe = p.second;
+				if (!pipe.ConditionPipe())
+				{
+					coworking.insert(p.first);
+					cout << pipe;
+				}
+			}
+			int choice = 8;
+			while (true)
+			{
+				cout << "Введите: " << endl
+					<< "1 - Изменить состояние всех труб" << endl
+					<< "0 - Назад" << endl;
+				choice = GetCorrectNumber(0, 1);
+				if (!choice)
+					break;
+				if (choice == 1)
+				{
+					for (const auto& p : coworking)
+						Pipes[p].edit();
+					break;
+				}
+			}
+		}
+		if (!choice) break;
+		
 	}
 }
 void input_set(unordered_set<int>& s)
 {
 	s.clear();
-	int number = 9;
+	int number = 0;
 	while (true)
 	{
-		number = GetCorrectNumber(-1, 10000);
-		if (number < 0) break;
+		number = GetCorrectNumber(0, 10000);
+		if (number == 0) break;
 		s.insert(number);
 	}
 }
 void EditPipes(unordered_map<int, Pipe>& Pipes)
 {
 	unordered_set<int> pp;
-	cout << "Введите ID труб, состояние которых нужно изменить(-1 чтобы закончить)"<< endl;
+	cout << "Введите ID труб, состояние которых нужно изменить(0 чтобы закончить)"<< endl;
 	input_set(pp);
-	for (auto& c : pp) if(Pipes.find(c) != Pipes.end())Pipes[c].edit();
+	for (auto& c : pp) 
+		if(Pipes.find(c) != Pipes.end())
+			Pipes[c].edit();
 }
 void DeletePipes(unordered_map<int, Pipe>& Pipes)
 {
 	unordered_set<int> pp;
-	cout << "Введите ID труб, которыe нужно удалить(-1 чтобы закончить)" << endl;
+	cout << "Введите ID труб, которыe нужно удалить(0 чтобы закончить)" << endl;
 	input_set(pp);
-	for (auto& c : pp) if (Pipes.find(c) != Pipes.end())Pipes.erase(c);
+	for (auto& c : pp) 
+		if (Pipes.find(c) != Pipes.end())
+			Pipes.erase(c);
 }
 
 void CSmenu(unordered_map<int, C_stat>& Stations)
@@ -236,7 +306,8 @@ void findStat(unordered_map<int, C_stat> Stations)
 			for (const auto& p : Stations)
 			{
 				cs = p.second;
-				if (cs.getname().find(pname) != -1) cout << cs;
+				if (cs.getname().find(pname) != 0)
+					cout << cs;
 			}
 			break;
 		}
@@ -266,7 +337,7 @@ void EditStat(unordered_map<int,C_stat>& Stations)
 void DeleteStat(unordered_map<int, C_stat>& Stations)
 {
 	unordered_set<int> pp;
-	cout << "Введите ID КС, которыe нужно удалить(-1 чтобы закончить)" << endl;
+	cout << "Введите ID КС, которыe нужно удалить(0 чтобы закончить)" << endl;
 	input_set(pp);
 	for (auto& c : pp) if (Stations.find(c) != Stations.end()) Stations.erase(c);
 }

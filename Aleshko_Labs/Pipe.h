@@ -12,11 +12,13 @@ private:
 	float len = 0;
 	float diameter = 0;
 	bool in_work = false;
+	int id = 0;
 
 public:
-	int id = 0;
 	
 	void edit();
+
+	void setID(int id);
 
 	bool ConditionPipe();
 

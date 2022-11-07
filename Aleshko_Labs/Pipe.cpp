@@ -55,3 +55,8 @@ void Pipe::edit()
 {
 	in_work = !in_work;
 }
+void Pipe::setID(int id)
+{
+	this->id = id;
+}
+
