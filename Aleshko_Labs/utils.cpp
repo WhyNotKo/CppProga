@@ -11,18 +11,6 @@
 
 using namespace std;
 
-template <typename T>
-T GetCorrectNumber(T min, T max)
-{
-	T x{};
-	while ((cin >> x).fail() || x<min || x>max)
-	{
-		cin.clear();
-		cin.ignore(10000, '\n');
-		cout << "Введите корректное число... " << endl;
-	}
-	return x;
-}
 
 bool input_bool()
 {
@@ -84,6 +72,7 @@ void save_data(string name,const unordered_map<int, Pipe> Pipes, const unordered
 		fout << c.first << endl;
 		fout << c.second << endl;
 	}
+	cout << endl << "Данные сохранены." << endl;
 	fout.close();
 }
 
@@ -143,10 +132,7 @@ void Pipemenu(unordered_map<int, Pipe>& Pipes)
 			<< "0 - Назад" << endl;
 		choice = GetCorrectNumber(0, 3);
 		if (!choice)
-		{
-			cout_menu();
 			break;
-		}
 		if (choice == 1) ShowPipes(Pipes);
 		if (choice == 2) EditPipes(Pipes);
 		if (choice == 3) DeletePipes(Pipes);
@@ -169,47 +155,46 @@ void ShowPipes(unordered_map<int, Pipe>& Pipes)
 			<< "2 - Неработающие трубы" << endl
 			<< "0 - Назад" << endl;
 		choice = GetCorrectNumber(0, 2);
-		if(choice == 1)
+
+		unordered_set<int> selected;
+		if (choice == 1)
 		{
 			cout << "Работающие трубы: " << endl << endl;
 
-			unordered_set<int> working;
+			selected.clear();
 			for (const auto& p : Pipes)
 			{
 				pipe = p.second;
 				if (pipe.ConditionPipe())
 				{
-					working.insert(p.first);
+					selected.insert(p.first);
 					cout << pipe;
 				}
 			}
-			int choice = 8;
-			while (true)
+			cout << "Введите: " << endl
+				<< "1 - Изменить состояние всех труб" << endl
+				<< "2 - Изменить введённое множество" << endl
+				<< "0 - Назад" << endl;
+			choice = GetCorrectNumber(0, 2);
+			if (choice == 0)
+				break;
+			if (choice == 2)
 			{
-				cout << "Введите: " << endl
-					<< "1 - Изменить состояние всех труб" << endl
-					<< "0 - Назад" << endl;
-				choice = GetCorrectNumber(0, 1);
-				if (!choice)
-					break;
-				if (choice == 1)
-				{
-					for (const auto& p : working)
-						Pipes[p].edit();
-					break;
-				}
+				selected = input_set(selected);
 			}
+			for (const auto& p : selected)
+				Pipes[p].edit();
 		}
 		if(choice == 2)
 		{
-			unordered_set<int> coworking;
+			selected.clear();
 			cout << endl << "НЕ Работающие трубы: " << endl << endl;
 			for (const auto& p : Pipes)
 			{
 				pipe = p.second;
 				if (!pipe.ConditionPipe())
 				{
-					coworking.insert(p.first);
+					selected.insert(p.first);
 					cout << pipe;
 				}
 			}
@@ -218,50 +203,36 @@ void ShowPipes(unordered_map<int, Pipe>& Pipes)
 			{
 				cout << "Введите: " << endl
 					<< "1 - Изменить состояние всех труб" << endl
+					<< "2 - Изменить состояние выбранных труб" << endl
 					<< "0 - Назад" << endl;
-				choice = GetCorrectNumber(0, 1);
+				choice = GetCorrectNumber(0, 2);
 				if (!choice)
 					break;
-				if (choice == 1)
+				if (choice == 2)
 				{
-					for (const auto& p : coworking)
-						Pipes[p].edit();
-					break;
+					selected = input_set(selected);
 				}
+				for (const auto& p : selected)
+					Pipes[p].edit();
 			}
 		}
 		if (!choice) break;
 		
 	}
 }
-void input_set(unordered_set<int>& s)
-{
-	s.clear();
-	int number = 0;
-	while (true)
-	{
-		number = GetCorrectNumber(0, 10000);
-		if (number == 0) break;
-		s.insert(number);
-	}
-}
 void EditPipes(unordered_map<int, Pipe>& Pipes)
 {
-	unordered_set<int> pp;
 	cout << "Введите ID труб, состояние которых нужно изменить(0 чтобы закончить)"<< endl;
-	input_set(pp);
+	unordered_set<int> pp = input_set(Pipes);
 	for (auto& c : pp) 
 		if(Pipes.find(c) != Pipes.end())
 			Pipes[c].edit();
 }
 void DeletePipes(unordered_map<int, Pipe>& Pipes)
 {
-	unordered_set<int> pp;
 	cout << "Введите ID труб, которыe нужно удалить(0 чтобы закончить)" << endl;
-	input_set(pp);
-	for (auto& c : pp) 
-		if (Pipes.find(c) != Pipes.end())
-			Pipes.erase(c);
+	for (auto& c : input_set(Pipes))
+		Pipes.erase(c);
 }
 
 void CSmenu(unordered_map<int, C_stat>& Stations)
@@ -336,8 +307,8 @@ void EditStat(unordered_map<int,C_stat>& Stations)
 }
 void DeleteStat(unordered_map<int, C_stat>& Stations)
 {
-	unordered_set<int> pp;
 	cout << "Введите ID КС, которыe нужно удалить(0 чтобы закончить)" << endl;
-	input_set(pp);
-	for (auto& c : pp) if (Stations.find(c) != Stations.end()) Stations.erase(c);
+
+	for (auto& c : input_set(Stations))
+		Stations.erase(c);
 }

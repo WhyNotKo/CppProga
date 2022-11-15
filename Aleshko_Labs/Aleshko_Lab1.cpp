@@ -59,6 +59,7 @@ int main()
 		{
 			Pipe pipe;
 			cin >> pipe;
+			pipe.setID(MPID);
 			//pipe.id = MPID;
 			Pipes.emplace(MPID, pipe);
 			MPID++;
