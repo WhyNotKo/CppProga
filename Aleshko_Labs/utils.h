@@ -32,7 +32,8 @@ std::unordered_set<int> input_set(const T& all)
 	while (true)
 	{
 		number = GetCorrectNumber(0, 10000);
-		if (number == 0) break;
+		if (number == 0)
+			break;
 		if (all.contains(number))
 			s.insert(number);
 	}
