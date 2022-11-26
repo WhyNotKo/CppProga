@@ -312,3 +312,32 @@ void DeleteStat(unordered_map<int, C_stat>& Stations)
 	for (auto& c : input_set(Stations))
 		Stations.erase(c);
 }
+
+tuple <int, int, int> getgts(const int MPID, const int MCID)//Нужно передавать и сами словари для проверки присутсвия вводимых ID... Либо использовать крутую функцию папилиной...
+{
+	cout << "Введите ID трубы: ";
+	int a = GetCorrectNumber(0, MPID);
+	int b = GetCorrectNumber(0, MCID);
+}
+
+void GtsMenu(unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, const int MPID, const int MCID)
+{
+	while (true)
+	{
+		cout << "Введите число от 0 до 4:" << endl
+			<< "1 - Задать Газотранспортную сеть" << endl
+			<< "2 - Вывести все сети" << endl
+			<< "3 - Изменить ГТС" << endl
+			<< "0 - Выйти в меню" << endl;
+		int menu = GetCorrectNumber(0, 4);
+
+		if (menu == 0)
+			break;
+
+		if (menu == 1)
+		{
+			cout<< 
+		}
+
+	}
+}

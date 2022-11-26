@@ -66,3 +66,7 @@ void findStat(unordered_map<int, C_stat> Stations);
 void EditStat(unordered_map<int, C_stat>& Stations);
 
 void DeleteStat(unordered_map<int, C_stat>& Stations);
+
+tuple <int,int,int> getgts(const int MPID, const int MCID);
+
+void GtsMenu(unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, const int MPID, const int MCID);

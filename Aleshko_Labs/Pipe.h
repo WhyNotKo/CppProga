@@ -22,6 +22,8 @@ public:
 
 	bool ConditionPipe();
 
+	int GetPipeDiam();
+
 	friend std::istream& operator >> (std::istream& in, Pipe& Pp);
 
 	friend std::ifstream& operator >> (std::ifstream& fin, Pipe& Pp);

@@ -23,6 +23,7 @@
 #include "Pipe.h"
 #include "utils.h"
 #include "C_stat.h"
+#include "Gts.h"
 
 #include <iostream>
 #include <fstream>
@@ -42,7 +43,7 @@ int main()
 
 	unordered_map<int, Pipe> Pipes;
 	unordered_map<int, C_stat> Stations;
-	
+	unordered_map<int, Gts> webs;
 	int menu = 0;
 	while (true)
 	{
@@ -109,6 +110,10 @@ int main()
 		if (menu == 7) 
 		{
 			CSmenu(Stations);
+		}
+		if (menu == 8)
+		{
+			GtsMenu(Pipes, Stations, MPID, MCID);
 		}
 	}
 	return 0;

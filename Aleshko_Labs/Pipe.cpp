@@ -60,3 +60,7 @@ void Pipe::setID(int id)
 	this->id = id;
 }
 
+int Pipe::GetPipeDiam()
+{
+	return diameter;
+}
