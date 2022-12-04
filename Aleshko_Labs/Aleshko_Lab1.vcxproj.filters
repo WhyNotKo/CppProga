@@ -30,7 +30,7 @@
     <ClCompile Include="C_stat.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Gts.cpp">
+    <ClCompile Include="Network.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,7 +47,7 @@
     <ClInclude Include="C_stat.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Gts.h">
+    <ClInclude Include="Network.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,12 +2,14 @@
 #include "pch.h"
 #include"Pipe.h"
 #include"C_stat.h"
+#include"Network.h"
 
 #include <iostream>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
+#include <stack>
 
 using namespace std;
 
@@ -39,15 +41,28 @@ std::unordered_set<int> input_set(const T& all)
 	}
 	return s;
 }
+template <typename T>
+int input_id(const T& all)
+{
+	int number = 0;
+	while (true)
+	{
+		number = GetCorrectNumber(0, 10000);
+		if (all.contains(number))
+			return number;
+		else
+			cout << "¬ведите другое значение" << endl;
+	}
+}
 bool input_bool();
 
 void cout_menu();
 
 int input_menu();
 
-void save_data(string name, const unordered_map<int, Pipe> Pipes, const unordered_map<int, C_stat> Stations);
+void save_data(string name, const unordered_map<int, Pipe> Pipes, const unordered_map<int, C_stat> Stations, const unordered_map<int, Network> webs);
 
-void load_data(string name, int &MPID, int&MCID, unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations );
+void load_data(string name, int &MPID, int&MCID, unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, unordered_map<int, Network>& webs);
 
 
 void Pipemenu(unordered_map<int, Pipe>& Pipes);
@@ -67,6 +82,5 @@ void EditStat(unordered_map<int, C_stat>& Stations);
 
 void DeleteStat(unordered_map<int, C_stat>& Stations);
 
-tuple <int,int,int> getgts(const int MPID, const int MCID);
 
-void GtsMenu(unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, const int MPID, const int MCID);
+void GtsMenu(unordered_map<int, Network>& webs, unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, int& MPID);

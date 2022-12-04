@@ -1,6 +1,4 @@
 #include "pch.h"
-#include"C_stat.h"
-#include"Pipe.h"
 #include "utils.h"
 
 #include <string>
@@ -43,6 +41,7 @@ void cout_menu()
 		<< "\n 5. Загрузить"
 		<< "\n 6. Работа с трубами"
 		<< "\n 7. Работа с КС"
+		<< "\n 8. Газотранспортная сеть"
 		<< "\n 0. Выход\n";
 }
 
@@ -55,11 +54,11 @@ int input_menu()
 	}
 }
 
-void save_data(string name,const unordered_map<int, Pipe> Pipes, const unordered_map<int, C_stat> Stations)
+void save_data(string name,const unordered_map<int, Pipe> Pipes, const unordered_map<int, C_stat> Stations, const unordered_map<int, Network> webs)
 {
 	name = name + ".txt";
 	ofstream fout(name);
-	fout << Pipes.size() << " " << Stations.size() << endl;
+	fout << Pipes.size() << " " << Stations.size() << " " << webs.size() << endl;
 
 	for (auto &p : Pipes)
 	{
@@ -72,12 +71,16 @@ void save_data(string name,const unordered_map<int, Pipe> Pipes, const unordered
 		fout << c.first << endl;
 		fout << c.second << endl;
 	}
+	for (auto& n : webs)
+	{
+		fout << n.second << endl;
+	}
 	cout << endl << "Данные сохранены." << endl;
 	fout.close();
 }
 
 
-void load_data(string name,int &MPID,int &MCID,unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations)
+void load_data(string name,int &MPID,int &MCID,unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, unordered_map<int, Network>& webs)
 {
 	name = name + ".txt";
 	
@@ -87,13 +90,15 @@ void load_data(string name,int &MPID,int &MCID,unordered_map<int, Pipe>& Pipes, 
 	{
 		Pipes.clear();
 		Stations.clear();
-		int psize = 0, csize = 0;
+		webs.clear();
+		int psize = 0, csize = 0, websize = 0;
 
-		fin >> psize >> csize;
+		fin >> psize >> csize >> websize;
 		//cout << psize << " " << csize << endl;
 		int id = 0;
 		Pipe pipe;
 		C_stat comp;
+		Network web;
 		for (int i = 0; i < psize; ++i)
 		{
 			fin >> id;
@@ -111,6 +116,11 @@ void load_data(string name,int &MPID,int &MCID,unordered_map<int, Pipe>& Pipes, 
 			comp.id = id;
 			comp.eff_cs();
 			Stations.emplace(id, comp);
+		}
+		for (int i = 0; i < websize; ++i)
+		{
+			fin >> web;
+			webs.emplace(web.webPipeid(), web);
 		}
 	}
 	else 
@@ -313,21 +323,138 @@ void DeleteStat(unordered_map<int, C_stat>& Stations)
 		Stations.erase(c);
 }
 
-tuple <int, int, int> getgts(const int MPID, const int MCID)//Нужно передавать и сами словари для проверки присутсвия вводимых ID... Либо использовать крутую функцию папилиной...
+//Работа с графом(что-то на очень сильно костыльном)-----------------------------------------------------------------------------------------------------
+
+pair<int, int> getpaircs(unordered_map<int, C_stat> Stations)
 {
-	cout << "Введите ID трубы: ";
-	int a = GetCorrectNumber(0, MPID);
-	int b = GetCorrectNumber(0, MCID);
+	cout << "Введите ID 1 КС: ";
+	int cs1 = input_id(Stations);
+	cout << "Введите ID 2 КС: ";
+	int cs2 = input_id(Stations);
+	while(true) {
+		if (cs1 == cs2)
+		{
+			cout << "Введите отличающееся значение: ";
+			cs2 = input_id(Stations);
+		}
+		else
+			break;
+	}
+	return pair<int, int>(cs1, cs2);
 }
 
-void GtsMenu(unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, const int MPID, const int MCID)
+int getPipe(int diam, unordered_map<int, Pipe>& Pipes, unordered_map<int, Network>& webs, int& MPID)
 {
+	bool find = false;
+	for (auto& p : Pipes)
+	{
+		if (((p.second).GetPipeDiam() == diam) && (!webs.contains(p.first)))
+			return p.first;
+	}
+
+	cout << "Труба не найдена, так что:" << endl;
+	Pipe pipe;
+	cin >> pipe;
+	pipe.setID(MPID);
+	Pipes.emplace(MPID, pipe);
+	MPID++;
+	return MPID - 1;
+
+}
+void AddLink(unordered_map<int,Network> &webs, unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, int& MPID, vector<vector<bool>>& graph)
+{
+	pair<int, int> cs = getpaircs(Stations);
+	while (true) {
+		if (graph[cs.first-1][cs.second-1])
+		{
+			cs = getpaircs(Stations);
+		}
+		else
+		{
+			graph[cs.first-1][cs.second-1] = true;
+			break;
+		}
+	}
+	cout << "Введите диаметр трубы: ";
+	int diam = GetCorrectNumber(200, 1500);
+	int Pid = getPipe(diam, Pipes, webs, MPID);
+	Network edge;
+	edge.create_link(Pid, cs.first, cs.second);
+	webs.emplace(Pid,edge);
+}
+
+void topologicalSortUtil(int v, unordered_set<int>& visited, stack<int>& Stack, unordered_map<int, unordered_set<int>>& graph)
+{
+	visited.insert(v);
+	for (auto& adj : graph[v])
+	{
+		if (!visited.contains(adj))
+			topologicalSortUtil(adj, visited, Stack, graph);
+	}
+
+	Stack.push(v);
+}
+
+void top_sort(unordered_map <int, Network> webs) {
+	std::unordered_map<int, std::unordered_set<int>> graph;
+
+	for (auto& [pipe, edges] : webs) {
+		graph[edges.get_stations().first].insert(edges.get_stations().second);
+	}
+
+	std::vector<int> graphNumeration;
+	std::unordered_set<int> visited;
+	int N = graph.size();
+
+	std::stack<int> Stack;
+
+	for (auto& [v, neighbours] : graph)
+	{
+		if (!visited.contains(v))
+			topologicalSortUtil(v, visited, Stack, graph);
+	}
+	int i = 1;
+	while (!Stack.empty())
+	{
+		std::cout << "Number " << i << ": "
+			<< Stack.top()
+			<< std::endl;
+
+		Stack.pop();
+		i++;
+	}
+
+}
+
+void GtsMenu(unordered_map<int, Network>& webs,unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, int &MPID)
+{
+	vector<vector<bool>> graph;
+	for(int i(0); i < Stations.size(); ++i)
+	{
+		vector<bool> current;
+		for (int j(0); j < Stations.size(); ++j)
+		{
+			bool find = false;
+			for (auto p : webs)
+			{
+				if (p.second.get_stations() == pair<int, int>{i+1, j+1})
+					find = true;
+			}
+			if (find)
+			{
+				current.push_back(true);
+			}
+			else
+				current.push_back(false);
+		}
+		graph.push_back(current);
+	}
 	while (true)
 	{
 		cout << "Введите число от 0 до 4:" << endl
-			<< "1 - Задать Газотранспортную сеть" << endl
+			<< "1 - Задать газотранспортную сеть" << endl
 			<< "2 - Вывести все сети" << endl
-			<< "3 - Изменить ГТС" << endl
+			<< "3 - Топологически отсортированное всё" << endl
 			<< "0 - Выйти в меню" << endl;
 		int menu = GetCorrectNumber(0, 4);
 
@@ -336,8 +463,16 @@ void GtsMenu(unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Statio
 
 		if (menu == 1)
 		{
-			cout<< 
+			AddLink(webs, Pipes, Stations, MPID, graph);
 		}
+
+		if (menu == 2)
+		{
+			for (auto& p : webs)
+				cout << p.second;
+		}
+		if (menu == 3)
+			top_sort(webs);
 
 	}
 }

@@ -13,6 +13,7 @@ private:
 	float diameter = 0;
 	bool in_work = false;
 	int id = 0;
+	//bool status = true;
 
 public:
 	
