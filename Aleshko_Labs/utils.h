@@ -14,16 +14,16 @@
 using namespace std;
 
 template <typename T>
-T GetCorrectNumber(T min = 0, T max = 10000000)
-{
-	T x{};
-	while (((cin >> x) || x<min || x>max) && (cin.peek() != EOF && cin.peek() != '\n'))
-	{
-		cin.clear();
-		cin.ignore(10000, '\n');
-		cout << "¬ведите корректное число... " << endl;
+T GetCorrectNumber(T least = 0, T great = 1000000) {
+	T val = 0;
+	while (true) {
+		if (std::cin >> val && (std::cin.peek() == EOF || std::cin.peek() == '\n') && (val >= least) && (val < great)) return val;
+		else {
+			std::cin.clear();
+			std::cin.ignore(10000, '\n');
+			std::cout << "¬ведите нормальное значение: ";
+		}
 	}
-	return x;
 }
 
 template <typename T>
@@ -65,13 +65,13 @@ void save_data(string name, const unordered_map<int, Pipe> Pipes, const unordere
 void load_data(string name, int &MPID, int&MCID, unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, unordered_map<int, Network>& webs);
 
 
-void Pipemenu(unordered_map<int, Pipe>& Pipes);
+void Pipemenu(unordered_map<int, Pipe>& Pipes, unordered_map<int,Network>& webs);
 
 void ShowPipes(unordered_map<int, Pipe>& Pipes);
 
 void EditPipes(unordered_map<int, Pipe>& Pipes);
 
-void DeletePipes(unordered_map<int, Pipe>& Pipes);
+void DeletePipes(unordered_map<int, Pipe>& Pipes, unordered_map <int,Network>& webs);
 
 
 void CSmenu(unordered_map<int, C_stat>& Stations);
@@ -84,3 +84,15 @@ void DeleteStat(unordered_map<int, C_stat>& Stations);
 
 
 void GtsMenu(unordered_map<int, Network>& webs, unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, int& MPID);
+
+double ford_fulkerson(std::vector<std::vector<double>>& graph, int s, int t);
+
+bool bfs(const std::vector<std::vector<double>>& r_graph, int s, int t, std::vector<int>& parent);
+
+std::vector<double> dijkstra(std::vector<std::vector<double>> graph, int src);
+
+void shortest_path(unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, std::unordered_map<int, Network>& edges);
+
+int min_dist_node(const std::unordered_set<int>& spt_set, const std::vector<double>& dist);
+
+void get_max_flow(unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, std::unordered_map<int, Network>& edges);

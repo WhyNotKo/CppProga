@@ -5,7 +5,8 @@
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
-
+#include<queue>
+#include<vector>
 
 using namespace std;
 
@@ -49,7 +50,7 @@ int input_menu()
 {
 	while (true)
 	{
-		int a = GetCorrectNumber(0, 7);
+		int a = GetCorrectNumber(0, 9);
 		return a;
 	}
 }
@@ -130,7 +131,7 @@ void load_data(string name,int &MPID,int &MCID,unordered_map<int, Pipe>& Pipes, 
 	fin.close();
 }
 
-void Pipemenu(unordered_map<int, Pipe>& Pipes)
+void Pipemenu(unordered_map<int, Pipe>& Pipes,unordered_map<int,Network>& webs)
 {
 	int choice = 8;
 	while (true)
@@ -145,7 +146,7 @@ void Pipemenu(unordered_map<int, Pipe>& Pipes)
 			break;
 		if (choice == 1) ShowPipes(Pipes);
 		if (choice == 2) EditPipes(Pipes);
-		if (choice == 3) DeletePipes(Pipes);
+		if (choice == 3) DeletePipes(Pipes,webs);
 	}
 }
 
@@ -238,11 +239,17 @@ void EditPipes(unordered_map<int, Pipe>& Pipes)
 		if(Pipes.find(c) != Pipes.end())
 			Pipes[c].edit();
 }
-void DeletePipes(unordered_map<int, Pipe>& Pipes)
+void DeletePipes(unordered_map<int, Pipe>& Pipes, unordered_map<int,Network>& webs)
 {
 	cout << "Введите ID труб, которыe нужно удалить(0 чтобы закончить)" << endl;
 	for (auto& c : input_set(Pipes))
+	{
 		Pipes.erase(c);
+		if (webs.contains(c))
+			webs.erase(c);
+	}
+
+	
 }
 
 void CSmenu(unordered_map<int, C_stat>& Stations)
@@ -416,7 +423,7 @@ void top_sort(unordered_map <int, Network> webs) {
 	int i = 1;
 	while (!Stack.empty())
 	{
-		std::cout << "Number " << i << ": "
+		std::cout << "Нумер " << i << ": "
 			<< Stack.top()
 			<< std::endl;
 
@@ -455,8 +462,10 @@ void GtsMenu(unordered_map<int, Network>& webs,unordered_map<int, Pipe>& Pipes, 
 			<< "1 - Задать газотранспортную сеть" << endl
 			<< "2 - Вывести все сети" << endl
 			<< "3 - Топологически отсортированное всё" << endl
+			<< "4 - Кратчайший путь" << endl
+			<< "5 - Максимальный поток" << endl
 			<< "0 - Выйти в меню" << endl;
-		int menu = GetCorrectNumber(0, 4);
+		int menu = GetCorrectNumber(0, 6);
 
 		if (menu == 0)
 			break;
@@ -474,5 +483,233 @@ void GtsMenu(unordered_map<int, Network>& webs,unordered_map<int, Pipe>& Pipes, 
 		if (menu == 3)
 			top_sort(webs);
 
+		if (menu == 4)
+			shortest_path(Pipes, Stations, webs);
+
+		if (menu == 5)
+			get_max_flow(Pipes, Stations, webs);
+
 	}
+}
+
+bool bfs(const std::vector<std::vector<double>>& r_graph, int s, int t, std::vector<int>& parent) {
+
+	const int V = r_graph.size();
+	std::vector<int> visited(V, 0);
+	std::queue<int> q;
+	int u;
+
+	q.push(s);
+	parent[s] = -1;
+
+	while (!q.empty()) {
+		u = q.front();
+		q.pop();
+
+		for (int v = 0; v < V; v++) {
+
+			if (visited[v] == false && r_graph[u][v] > 0) {
+
+				parent[v] = u;
+
+				if (v == t) {
+
+					return true;
+				}
+
+				q.push(v);
+				visited[v] = true;
+
+			}
+		}
+	}
+
+	return false;
+}
+
+
+double ford_fulkerson(std::vector<std::vector<double>>& graph, int s, int t) {
+
+	int u, v;
+	int V = graph.size();
+	std::vector<std::vector<double>> r_graph = graph;
+	std::vector<int> parent(V, 0);
+	double max_flow = 0;
+	double path_flow;
+
+
+	while (bfs(r_graph, s, t, parent)) {
+
+		path_flow = std::numeric_limits<double>::max();
+
+		for (v = t; v != s; v = parent[v]) {
+			u = parent[v];
+			path_flow = std::min(path_flow, r_graph[u][v]);
+		}
+
+		for (v = t; v != s; v = parent[v]) {
+			u = parent[v];
+
+			r_graph[u][v] -= path_flow;
+			r_graph[v][u] += path_flow;
+		}
+
+		max_flow += path_flow;
+	}
+
+	return max_flow;
+}
+
+std::vector<double> dijkstra(std::vector<std::vector<double>> graph, int src) {
+
+	std::unordered_set<int> spt_set;
+	double Inf = std::numeric_limits<double>::max();
+	std::vector<double> dist(graph.size(), Inf);
+	dist[src] = 0;
+
+	for (int count(0); count < (graph.size() - 1); ++count) {
+
+		int u = min_dist_node(spt_set, dist);
+
+		spt_set.insert(u);
+
+
+		for (int v(0); v < graph.size(); ++v) {
+			if (!spt_set.contains(v) && graph[u][v] != 0 && dist[u] != Inf)
+				dist[v] = std::min(dist[v], dist[u] + graph[u][v]);
+		}
+	}
+
+	return dist;
+}
+
+void shortest_path(unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, std::unordered_map<int, Network>& edges)
+{
+
+	std::unordered_map<int, int> id_idx;
+	std::unordered_map<int, int> idx_id;
+	std::unordered_set<int> spt_compr_stations;
+
+	std::vector<std::vector<double>> graph(Stations.size(), std::vector<double>(Stations.size(), 0.0));
+
+	int idx = 0;
+
+	for (auto& [Pp_id, edge] : edges) {
+		if (!spt_compr_stations.contains(edge.get_stations().first)) {
+			id_idx[edge.get_stations().first] = idx;
+			idx_id[idx] = edge.get_stations().first;
+			spt_compr_stations.insert(edge.get_stations().first);
+
+			idx++;
+		}
+
+		if (!spt_compr_stations.contains(edge.get_stations().second)) {
+			id_idx[edge.get_stations().second] = idx;
+			idx_id[idx] = edge.get_stations().second;
+			spt_compr_stations.insert(edge.get_stations().second);
+
+			idx++;
+		}
+	}
+
+	for (auto& [Pp_id, edge] : edges) {
+		if (Pipes[Pp_id].ConditionPipe() == true)
+			graph[id_idx[edge.get_stations().first]][id_idx[edge.get_stations().second]] = Pipes[Pp_id].get_len();
+	}
+
+	int src;
+
+	while (true) {
+		std::cout << "Начальная вершина: ";
+		src = GetCorrectNumber(1, std::numeric_limits<int>::max());
+		if (id_idx.contains(src)) {
+			src = id_idx[src];
+			break;
+		}
+		std::cout << "Нет такого" << std::endl;
+	}
+
+	std::vector<double> dist = dijkstra(graph, src);
+
+	for (int i(0); i < dist.size(); ++i) {
+		std::cout << "Расстояние вершины " << idx_id[i];
+		if (dist[i] == std::numeric_limits<double>::max())
+			std::cout << " это Inf" << std::endl;
+		else
+			std::cout << " это " << dist[i] << std::endl;
+	}
+}
+
+int min_dist_node(const std::unordered_set<int>&spt_set, const std::vector<double>&dist) {
+
+	double least = std::numeric_limits<double>::max();
+	int idx = 0;
+
+	for (int i(0); i < dist.size(); ++i) {
+		if (dist[i] < least && !spt_set.contains(i)) {
+			least = dist[i];
+			idx = i;
+		}
+	}
+
+	return idx;
+}
+
+void get_max_flow(unordered_map<int, Pipe>& Pipes, unordered_map<int, C_stat>& Stations, std::unordered_map<int, Network>& edges) {
+	std::unordered_map<int, int> id_idx;
+	std::unordered_map<int, int> idx_id;
+	std::unordered_set<int> spt_compr_stations;
+
+	std::vector<std::vector<double>> graph(Stations.size(), std::vector<double>(Stations.size(), 0.0));
+
+	int idx = 0;
+
+	for (auto& [Pp_id, edge] : edges) {
+		if (!spt_compr_stations.contains(edge.get_stations().first)) {
+			id_idx[edge.get_stations().first] = idx;
+			idx_id[idx] = edge.get_stations().first;
+			spt_compr_stations.insert(edge.get_stations().first);
+
+			idx++;
+		}
+
+		if (!spt_compr_stations.contains(edge.get_stations().second)) {
+			id_idx[edge.get_stations().second] = idx;
+			idx_id[idx] = edge.get_stations().second;
+			spt_compr_stations.insert(edge.get_stations().second);
+
+			idx++;
+		}
+	}
+
+	for (auto& [Pp_id, edge] : edges) {
+		if (Pipes[Pp_id].ConditionPipe() == true)
+			graph[id_idx[edge.get_stations().first]][id_idx[edge.get_stations().second]] = Pipes[Pp_id].GetPipeDiam();
+	}
+
+	int start, finish;
+
+	while (true) {
+		std::cout << "Начальная вершина: ";
+		start = GetCorrectNumber(1, std::numeric_limits<int>::max());
+		if (id_idx.contains(start)) {
+			start = id_idx[start];
+			break;
+		}
+		std::cout << "Нет такого" << std::endl;
+	}
+
+	while (true) {
+		std::cout << "Конечная вершина: ";
+		finish = GetCorrectNumber(1, std::numeric_limits<int>::max());
+		if (id_idx.contains(finish)) {
+			finish = id_idx[finish];
+			break;
+		}
+		std::cout << "Нет такого" << std::endl;
+	}
+
+	std::cout << "Максимальный поток " << idx_id[start] << " to " << idx_id[finish] << " is "
+		<< ford_fulkerson(graph, start, finish) << std::endl;
+
 }

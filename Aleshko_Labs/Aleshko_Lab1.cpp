@@ -83,7 +83,7 @@ int main()
 		}
 		if (menu == 6)
 		{
-			Pipemenu(Pipes);
+			Pipemenu(Pipes, webs);
 		}
 		if (menu == 7) 
 		{

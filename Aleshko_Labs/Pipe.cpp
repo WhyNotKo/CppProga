@@ -64,3 +64,8 @@ int Pipe::GetPipeDiam()
 {
 	return diameter;
 }
+
+float Pipe::get_len()
+{
+	return len;
+}
